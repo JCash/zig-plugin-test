@@ -13,10 +13,7 @@ fn zigPluginCreate(name: [*c]const u8) callconv(.C) ?*anyopaque {
     print("  zigPluginCreate {s}\n", .{name});
     const ctx : *ZigPluginContext = std.heap.c_allocator.create(ZigPluginContext) catch return null;
     ctx.some_value = 0;
-
-    // const bytes = std.heap.c_allocator.alloc(u8, 100) catch null;
     return @ptrCast(*anyopaque, ctx);
-    //return ctx;
 }
 
 fn zigPluginDestroy(plugin: ?*anyopaque) callconv(.C) void {
@@ -41,8 +38,6 @@ fn createZigPlugin() ?*c.Plugin {
 }
 
 export fn mod_init_func() callconv(.C) void {
-    std.debug.print("MAWE Loading\n", .{});
-
     const plugin : ?*c.Plugin = createZigPlugin();
     c.util_registerPlugin(plugin);
 }
