@@ -16,9 +16,10 @@ fn zigPluginCreate(name: [*c]const u8) callconv(.C) ?*anyopaque {
     return @ptrCast(*anyopaque, ctx);
 }
 
-fn zigPluginDestroy(plugin: ?*anyopaque) callconv(.C) void {
+fn zigPluginDestroy(_plugin: ?*anyopaque) callconv(.C) void {
+    const plugin : *ZigPluginContext = @ptrCast(*ZigPluginContext, @alignCast(4, _plugin));
     print("zigPluginDestroy {*}\n", .{plugin});
-    //std.heap.c_allocator.free(plugin);
+    std.heap.c_allocator.destroy(plugin);
 }
 
 fn zigPluginUpdate(_plugin: ?*anyopaque) callconv(.C) void {
