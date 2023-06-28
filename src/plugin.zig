@@ -57,13 +57,7 @@ fn PluginUpdate(_plugin: ?*anyopaque) callconv(.C) void {
     print("    PluginZIG: PluginUpdate {}\n", .{plugin.some_value});
 }
 
-fn AllocatePlugin() ?*c.Plugin {
-    var plugin : *c.Plugin = std.heap.c_allocator.create(c.Plugin) catch return null;
-    return plugin;
-}
-
 export fn PluginZIG() callconv(.C) void {
-    //const plugin : ?*c.Plugin = std.heap.c_allocator.create(c.Plugin) catch return null;
     const plugin : ?*c.Plugin = AllocatePlugin();
     c.plugin_registerPlugin(plugin, "PluginZIG", PluginCreate, PluginDestroy, PluginUpdate);
 }
