@@ -1,63 +1,39 @@
 #include <stdio.h>
 #include "util.h"
+#include "plugin.h"
 
-extern "C" void mod_init_func();
+extern "C"
+{
+    #include <lua.h>
+    #include <lauxlib.h>
+    #include <lualib.h>
+}
 
+extern "C" void PluginCPP();
+extern "C" void PluginZIG();
+
+// By referencing the symbols here, the linker cannot optimize them away
 extern "C" void theLinkerTrick()
 {
-    mod_init_func();
+    PluginCPP();
+    PluginZIG();
 }
-
-static void* cpp_pluginCreate(const char* name)
-{
-    int* plugin = new int;
-    *plugin = 0;
-    printf("  %s: %s %p %d\n", __FUNCTION__, name, plugin, *plugin);
-    return (void*)plugin;
-}
-
-static void cpp_pluginDestroy(void* _plugin)
-{
-    int* plugin = (int*)_plugin;
-    printf("  %s: %p %d\n", __FUNCTION__, plugin, *plugin);
-    delete plugin;
-}
-
-static void cpp_pluginUpdate(void* _plugin)
-{
-    int* plugin = (int*)_plugin;
-    (*plugin)++;
-    printf("  %s: %p %d\n", __FUNCTION__, plugin, *plugin);
-}
-
-struct CPP_PluginRegistrator
-{
-    Plugin plugin_definition;
-    CPP_PluginRegistrator()
-    {
-        printf("GLOBAL: CPP\n");
-        plugin_definition.name = "CPP Plugin";
-        plugin_definition.fn_create = cpp_pluginCreate;
-        plugin_definition.fn_destroy = cpp_pluginDestroy;
-        plugin_definition.fn_update = cpp_pluginUpdate;
-        util_registerPlugin(&plugin_definition);
-    }
-} g_CppPluginAdder;
-
-
 
 int main(int argc, char** argv)
 {
     printf("main.cpp: Entering\n");
 
-    util_createPlugins();
+    lua_State* L = luaL_newstate();
+    luaL_openlibs(L);
+
+    plugin_createPlugins(L);
 
     for (int i = 0; i < 2; ++i)
     {
-        util_updatePlugins();
+        plugin_updatePlugins();
     }
 
-    util_destroyPlugins();
+    plugin_destroyPlugins();
 
     printf("main.cpp: Exiting\n");
     return 0;
