@@ -2,6 +2,7 @@
 
 set -e
 
+ZIG=$(pwd)/../bin/zig
 CC="zig cc"
 CXX="zig c++"
 AR="zig ar"
@@ -26,7 +27,11 @@ ${CXX} ${OPT} -Iinclude -c -o ${BUILDDIR}/plugin_cpp.cxx.o ./src/plugin_cpp.cpp
 ${AR} rcs ${BUILDDIR}/libplugin_cpp.a ${BUILDDIR}/plugin_cpp*.o
 
 echo "Build libplugin_zig.a"
-zig build --verbose
+${ZIG} build
+#${ZIG} build-lib --name plugin_zig
+#${ZIG} build-lib --cache-dir ${BUILDDIR} --name plugin_zigfoo -fPIC
+#${ZIG} build install --prefix ${BUILDDIR} --prefix-lib-dir ${BUILDDIR}
+#--cache-dir
 
 echo "Link exe"
 mkdir -p ${BUILDDIR}/bin

@@ -42,23 +42,23 @@ fn PluginCreate(name: [*c]const u8, L: ?*c.lua_State) callconv(.C) ?*anyopaque {
     const ctx : *ZigPluginContext = std.heap.c_allocator.create(ZigPluginContext) catch return null;
     ctx.some_value = 0;
     RegisterModule(L);
-    return @ptrCast(*anyopaque, ctx);
+    return @ptrCast(ctx);
 }
 
 fn PluginDestroy(_plugin: ?*anyopaque) callconv(.C) void {
-    const plugin : *ZigPluginContext = @ptrCast(*ZigPluginContext, @alignCast(4, _plugin));
+    const plugin : *ZigPluginContext = @ptrCast(@alignCast(_plugin));
     print("    PluginZIG: PluginDestroy {*}\n", .{plugin});
     std.heap.c_allocator.destroy(plugin);
 }
 
 fn PluginUpdate(_plugin: ?*anyopaque) callconv(.C) void {
-    const plugin : *ZigPluginContext = @ptrCast(*ZigPluginContext, @alignCast(4, _plugin));
+    const plugin : *ZigPluginContext = @ptrCast(@alignCast(_plugin));
     plugin.some_value += 1;
     print("    PluginZIG: PluginUpdate {}\n", .{plugin.some_value});
 }
 
 export fn PluginZIG() callconv(.C) void {
-    const plugin : ?*c.Plugin = AllocatePlugin();
+    const plugin : ?*c.Plugin = std.heap.c_allocator.create(c.Plugin) catch null;
     c.plugin_registerPlugin(plugin, "PluginZIG", PluginCreate, PluginDestroy, PluginUpdate);
 }
 
