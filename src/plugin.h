@@ -4,13 +4,8 @@
 extern "C" {
 #endif
 
-#include "lua.h"
-// #include <lualib.h>
-// #include <lauxlib.h>
-
-
 // Public
-typedef void* (*FPluginCreate)(const char* name, struct lua_State* L);
+typedef void* (*FPluginCreate)(const char* name);
 typedef void  (*FPluginDestroy)(void* plugin);
 typedef void  (*FPluginUpdate)(void* plugin);
 
@@ -35,7 +30,7 @@ struct Plugin
 void plugin_registerPlugin(struct Plugin* plugin, const char*, FPluginCreate, FPluginDestroy, FPluginUpdate);
 
 // Public
-void plugin_createPlugins(struct lua_State* L);
+void plugin_createPlugins();
 void plugin_destroyPlugins();
 void plugin_updatePlugins();
 

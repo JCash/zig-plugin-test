@@ -14,14 +14,14 @@ void plugin_registerPlugin(struct Plugin* plugin, const char* name, FPluginCreat
     printf("Registered plugin '%s'\n", g_Plugins->name);
 }
 
-void plugin_createPlugins(struct lua_State* L)
+void plugin_createPlugins()
 {
     Plugin* plugin = g_Plugins;
 
     printf("  Creating plugins:\n");
     while(plugin)
     {
-        plugin->plugin = plugin->fn_create(plugin->name, L);
+        plugin->plugin = plugin->fn_create(plugin->name);
         plugin = plugin->next;
     }
 }

@@ -10,6 +10,7 @@ pub fn build(b: *std.build.Builder) void {
                         .target = target,
                         .optimize = optimize,
                     });
+    lib.linkSystemLibrary("c");
     lib.addIncludePath("include");
     lib.addIncludePath(".");
     b.installArtifact(lib);

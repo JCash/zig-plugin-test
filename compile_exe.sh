@@ -2,7 +2,8 @@
 
 set -e
 
-ZIG=$(pwd)/../bin/zig
+#ZIG=$(pwd)/../bin/zig
+ZIG=zig
 CC="zig cc"
 CXX="zig c++"
 AR="zig ar"
@@ -13,6 +14,9 @@ OPT=-O2
 mkdir -p ${BUILDDIR}
 
 export MACOSX_DEPLOYMENT_TARGET=10.13
+
+export ZIG_GLOBAL_CACHE_DIR=${BUILDDIR}
+export ZIG_LOCAL_CACHE_DIR=${BUILDDIR}
 
 echo "Build libutil.a"
 
@@ -27,18 +31,12 @@ ${CXX} ${OPT} -Iinclude -c -o ${BUILDDIR}/plugin_cpp.cxx.o ./src/plugin_cpp.cpp
 ${AR} rcs ${BUILDDIR}/libplugin_cpp.a ${BUILDDIR}/plugin_cpp*.o
 
 echo "Build libplugin_zig.a"
-${ZIG} build
-#${ZIG} build-lib --name plugin_zig
-#${ZIG} build-lib --cache-dir ${BUILDDIR} --name plugin_zigfoo -fPIC
-#${ZIG} build install --prefix ${BUILDDIR} --prefix-lib-dir ${BUILDDIR}
-#--cache-dir
+${ZIG} build-obj -fPIC -O ReleaseFast -l c -I. -femit-bin=${BUILDDIR}/plugin_zig.o src/plugin.zig
+${AR} rcs ${BUILDDIR}/libplugin_zig.a ${BUILDDIR}/plugin_zig*.o
 
 echo "Link exe"
 mkdir -p ${BUILDDIR}/bin
-# -flto isn't supported yet
-#clang++ ${OPT} -flto -o ${BUILDDIR}/bin/testzig ./src/main.cpp ${BUILDDIR}/libutil.a ./zig-out/lib/libzigtest.a
-#clang++ ${OPT} -g -o ${BUILDDIR}/bin/testzig -Iinclude -Llib -L${BUILDDIR} -L./zig-out/lib ./src/main.cpp -llua -lutil -lplugin_cpp -lzigtest
-clang++ ${OPT} -mmacosx-version-min=13.1 -g -o ${BUILDDIR}/bin/testzig -Iinclude -Llib -L${BUILDDIR} -L./zig-out/lib ./src/main.cpp -llua -lutil -lplugin_cpp -lplugin_zig
+clang++ ${OPT} -mmacosx-version-min=13.1 -g -o ${BUILDDIR}/bin/testzig -Iinclude -Llib -L${BUILDDIR} -L./zig-out/lib ./src/main.cpp -lutil -lplugin_cpp -lplugin_zig
 
 echo "Compile done!"
 echo ""
